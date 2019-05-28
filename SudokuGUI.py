@@ -38,6 +38,11 @@ class Ui_MainWindow(object):
         self.tableWidget.horizontalHeader().setMinimumSectionSize(31)
         self.tableWidget.verticalHeader().setVisible(False)
         self.tableWidget.verticalHeader().setDefaultSectionSize(40)
+        self.solveButton = QtWidgets.QPushButton(self.centralwidget)
+        self.solveButton.setGeometry(QtCore.QRect(350, 430, 75, 23))
+        self.solveButton.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+                                       "color: rgb(0, 0, 0);")
+        self.solveButton.setObjectName("solveButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 480, 21))
@@ -58,11 +63,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Sudoku"))
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
-
-        for i in range(self.tableWidget.rowCount()):
-            for j in range(self.tableWidget.columnCount()):
-                item = self.tableWidget.item(i, j)
-                item.setText(_translate("MainWindow", ""))
-
         self.tableWidget.setSortingEnabled(__sortingEnabled)
+        self.solveButton.setText(_translate("MainWindow", "Solve!"))
         self.menuMenu.setTitle(_translate("MainWindow", "Menu"))
