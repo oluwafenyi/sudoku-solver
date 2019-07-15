@@ -21,10 +21,10 @@ gridline-color: rgb(0, 0, 0);</string>
    <widget class="QTableWidget" name="tableWidget">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>70</y>
+      <x>50</x>
+      <y>40</y>
       <width>361</width>
-      <height>321</height>
+      <height>361</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -509,7 +509,7 @@ color: rgb(0, 0, 0);</string>
      <x>0</x>
      <y>0</y>
      <width>480</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu">

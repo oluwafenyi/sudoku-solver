@@ -1,7 +1,4 @@
-import sys
 import random
-from PyQt5.QtWidgets import QMainWindow, QApplication
-from SudokuGUI import Ui_MainWindow
 
 
 class Cell:
@@ -25,8 +22,8 @@ class Cell:
         self.grid_dimension = grid_dimension
 
     def __repr__(self):
-        # return "{0.__class__.__name__}({0.x!r}, {0.y!r})".format(self)
-        return repr(self.val)
+        return "{0.__class__.__name__}({0.x!r}, {0.y!r})".format(self)
+        # return repr(self.val)
 
     def __eq__(self, other):
         return (self.x == other.row) and (self.y == other.column)
@@ -48,6 +45,10 @@ class Cell:
     @property
     def value(self):
         return self.val
+
+    @property
+    def block(self):
+        return self.block_position()
 
     @value.setter
     def value(self, val):
@@ -83,7 +84,7 @@ class Region:
         return horizontals
 
     def vertical_regions(self):
-        horizontals = self._horizontal_regions()
+        horizontals = self.horizontal_regions()
         verticals = []
         for i in range(len(horizontals)):
             buffer = []
@@ -115,6 +116,7 @@ class Region:
 
 
 class Board:
+
     def __init__(self, dimension=9):
         self.dimension = dimension
         self.board = []
@@ -139,22 +141,27 @@ class Board:
             return cell
         raise StopIteration()
 
-    def input_board(self, board):
+    def input_cells(self, cells: list):
+        """
+        takes in a list of cells and fills the gap with zero-cells
+        """
+        buffer = []
         for i in range(self.dimension):
             for j in range(self.dimension):
-                if Cell(i, j) not in board:
-                    board.append(Cell(i, j, 0))
+                if Cell(i, j) not in cells:
+                    buffer.append(Cell(i, j, 0))
 
-        self.board = sorted(board, key=lambda cell: (cell.row, cell.column))
+        buffer += cells
+        self.board = sorted(buffer, key=lambda cell: (cell.row, cell.column))
 
     def generate_board(self, difficulty=0):
-        # TODO: Make function have more cells that aren't filled based on
+        # todo: Make function have more cells that aren't filled based on
         # difficulty
         for row in range(self.dimension):
             for col in range(self.dimension):
                 self.board.append(Cell(row, col, val=random.randint(0, 9)))
 
-    def board_is_solved(self):
+    def is_solved(self):
         is_solved = 1
         region = Region(self.board)
         for i in range(self.dimension):
@@ -171,54 +178,3 @@ class Board:
                 break
 
         return is_solved == 1
-
-    def solve_board(self):
-        while not self.board_is_solved():
-            pass
-
-
-class GUI(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-
-        self.board = Board()
-        self.cells = []
-
-        self.show()
-        self.ui.tableWidget.itemChanged.connect(self.on_change)
-
-    def on_change(self, item):
-        try:
-            if item.text() == "":
-                new_cell = Cell(item.row(), item.column(),
-                                val=0, isfixed=True)
-            elif item.text() == "0":
-                # users shouldn't enter zero as a cell value as it is already
-                # the default value.
-                raise ValueError("cannot input 0 as valid cell value")
-            else:
-                new_cell = Cell(item.row(), item.column(),
-                                val=int(item.text()), isfixed=True)
-
-            # we want to avoid having a cell with val 0 self.cells
-            if new_cell not in self.cells and new_cell.value != 0:
-                self.cells.append(new_cell)
-            else:
-                self.cells.remove(new_cell)
-                if new_cell.value != 0:
-                    self.cells.append(new_cell)
-
-            self.board.input_board(self.cells)
-            # print(self.board)
-
-        except ValueError:
-            self.ui.tableWidget.item(item.row(), item.column()).setText("")
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    w = GUI()
-    w.show()
-    sys.exit(app.exec_())
