@@ -22,12 +22,25 @@ class GUI(QMainWindow):
         self.show()
         self.ui.tableWidget.itemChanged.connect(self.on_change)
         self.ui.solveButton.clicked.connect(self.solve)
+        self.ui.clearButton.clicked.connect(self.clear)
 
 
     def setCell(self, x, y, val):
         item = QTableWidgetItem(str(val))
         item.setTextAlignment(Qt.AlignCenter)
         self.ui.tableWidget.setItem(x, y, item)
+
+
+    def clear(self):
+        self.ui.status.setText("")
+        self.board = Board()
+        self.cells = []
+        for x in range(self.ui.tableWidget.rowCount()):
+            for y in range(self.ui.tableWidget.columnCount()):
+                item = QTableWidgetItem()
+                item.setTextAlignment(Qt.AlignCenter)
+                item.setBackground(QtGui.QColor("#ffffff"))
+                self.ui.tableWidget.setItem(x, y, item)
 
 
     def on_change(self, item):
@@ -56,18 +69,20 @@ class GUI(QMainWindow):
                         self.cells.append(new_cell)
 
                 self.board.input_cells(self.cells)
-                # print(self.board)
 
             except ValueError:
                 item.setText("")
                 item.setBackground(QtGui.QColor("#ffffff"))
 
     def solve(self):
+        if not self.board.is_valid:
+            self.ui.status.setText("The board is invalid.")
+            return
+
         self.ui.solveButton.setDisabled(True)
         self.ui.tableWidget.setDisabled(True)
-        while not self.board.is_solved():
-            for cell in self.board.board:
-                print(cell)
+        while not self.board.is_solved:
+            for cell in self.board:
                 if not cell.isfixed:
                     if cell.value == 0:
                         taken_x = [c.value for c in self.board if c.value != 0 and c.x == cell.x]
@@ -75,19 +90,17 @@ class GUI(QMainWindow):
                         taken_b = [c.value for c in self.board if c.value != 0 and c.block == cell.block]
                         taken_set = set(taken_x + taken_y + taken_b)
                         possible_solutions = list({i for i in range(1, self.board.dimension + 1)} - taken_set)
-                        print(possible_solutions)
-                        if len(possible_solutions) > 1 or len(possible_solutions) == 0:
-                            continue
-                        cell.value = random.choice(possible_solutions)
-                        cell.possible_solutions = possible_solutions
-                        self.setCell(cell.x, cell.y, cell.value)
-
-                # elif cell.value:
-                #     cell.value = random.choice(cell.possible_solutions)
-                #     self.setCell(cell.x, cell.y, cell.value)
+                        # if len(possible_solutions) > 1 or len(possible_solutions) == 0:
+                        #     continue
+                        if len(possible_solutions) == 1:
+                            # cell.value = random.choice(possible_solutions)
+                            cell.value = possible_solutions[0]
+                            # cell.possible_solutions = possible_solutions
+                            self.setCell(cell.x, cell.y, cell.value)
 
         self.ui.solveButton.setDisabled(False)
         self.ui.tableWidget.setDisabled(False)
+        self.ui.status.setText("Puzzle solved.")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

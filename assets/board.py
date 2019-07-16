@@ -1,4 +1,3 @@
-import random
 
 
 class Cell:
@@ -23,32 +22,16 @@ class Cell:
 
     def __repr__(self):
         return "{0.__class__.__name__}({0.x!r}, {0.y!r})".format(self)
-        # return repr(self.val)
 
     def __eq__(self, other):
-        return (self.x == other.row) and (self.y == other.column)
+        return (self.x == other.x) and (self.y == other.y)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def is_filled(self):
-        return bool(self.val)
-
-    @property
-    def row(self):
-        return self.x
-
-    @property
-    def column(self):
-        return self.y
-
     @property
     def value(self):
         return self.val
-
-    @property
-    def block(self):
-        return self.block_position()
 
     @value.setter
     def value(self, val):
@@ -57,7 +40,8 @@ class Cell:
         else:
             raise TypeError("fixed cells do not support item assignment")
 
-    def block_position(self):
+    @property
+    def block(self):
         sqrt = int(self.grid_dimension**0.5)
         buffer = [i for i in range(sqrt) for j in range(sqrt)]
         return buffer[self.x], buffer[self.y]
@@ -76,7 +60,7 @@ class Region:
         for i in range(self.board_dimension):
             buffer = []
             for cell in self.board:
-                if cell.row == i:
+                if cell.x == i:
                     buffer.append(cell)
             if buffer:
                 horizontals.append(buffer)
@@ -100,19 +84,19 @@ class Region:
             for j in range(self.board_dimension):
                 buffer = []
                 for cell in self.board:
-                    if cell.block_position() == (i, j):
+                    if cell.block == (i, j):
                         buffer.append(cell)
                 if buffer:
                     blocks.append(buffer)
 
         return blocks
 
-    def isvalid(self, array):
+    def is_valid(self, array):
         buffer = []
         for cell in array:
             if cell.value not in buffer:
                 buffer.append(cell.value)
-        return len(buffer) == self.board_dimension
+        return len(buffer) == self.board_dimension and 0 not in buffer
 
 
 class Board:
@@ -130,16 +114,11 @@ class Board:
             string = str(self.board)
         return string
 
-    def __iter__(self):
-        self.itercounter = 0
-        return self
-
-    def __next__(self):
-        if self.itercounter < len(self.board):
-            cell = self.board[self.itercounter]
-            self.itercounter += 1
-            return cell
-        raise StopIteration()
+    def __getitem__(self, i):
+        if i < len(self.board):
+            return self.board[i]
+        else:
+            raise IndexError("index out of range")
 
     def input_cells(self, cells: list):
         """
@@ -152,29 +131,53 @@ class Board:
                     buffer.append(Cell(i, j, 0))
 
         buffer += cells
-        self.board = sorted(buffer, key=lambda cell: (cell.row, cell.column))
+        self.board = sorted(buffer, key=lambda cell: (cell.x, cell.y))
 
     def generate_board(self, difficulty=0):
-        # todo: Make function have more cells that aren't filled based on
-        # difficulty
-        for row in range(self.dimension):
-            for col in range(self.dimension):
-                self.board.append(Cell(row, col, val=random.randint(0, 9)))
+        # todo: create function to generate random boards
+        pass
 
+    @property
     def is_solved(self):
-        is_solved = 1
+        solved = True
         region = Region(self.board)
+        horizontals = region.horizontal_regions()
+        verticals = region.vertical_regions()
+        blocks = region.block_regions()
+
         for i in range(self.dimension):
-            if not region.isvalid(region.horizontal_regions()[i]):
-                is_solved *= 0
+
+            if not region.is_valid(horizontals[i]):
+                solved = False
                 break
 
-            if not region.isvalid(region.vertical_regions()[i]):
-                is_solved *= 0
+            if not region.is_valid(verticals[i]):
+                solved = False
                 break
 
-            if not region.isvalid(region.block_regions()[i]):
-                is_solved *= 0
+            if not region.is_valid(blocks[i]):
+                solved = False
                 break
 
-        return is_solved == 1
+        return solved
+
+    @property
+    def is_valid(self):
+        valid = True
+        region = Region(self.board)
+        horizontals = region.horizontal_regions()
+        verticals = region.vertical_regions()
+        blocks = region.block_regions()
+        for cell in self.board:
+            if cell.value:
+                if [c.value for c in horizontals[cell.x]].count(cell.value) > 1:
+                    valid = False
+                    break
+                if [c.value for c in verticals[cell.y]].count(cell.value) > 1:
+                    valid = False
+                    break
+
+                if [c.value for c in self.board if c.block == cell.block].count(cell.value) > 1:
+                    valid = False
+                    break
+        return valid

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
+    <width>471</width>
     <height>501</height>
    </rect>
   </property>
@@ -22,7 +22,7 @@ gridline-color: rgb(0, 0, 0);</string>
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>40</y>
+      <y>30</y>
       <width>361</width>
       <height>361</height>
      </rect>
@@ -488,7 +488,7 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QPushButton" name="solveButton">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>330</x>
       <y>430</y>
       <width>75</width>
       <height>23</height>
@@ -502,13 +502,43 @@ color: rgb(0, 0, 0);</string>
      <string>Solve!</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="clearButton">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>430</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
+    </property>
+    <property name="text">
+     <string>Clear</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="status">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>400</y>
+      <width>231</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>480</width>
+     <width>471</width>
      <height>18</height>
     </rect>
    </property>
