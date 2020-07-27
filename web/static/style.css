@@ -1,0 +1,39 @@
+* {
+    box-sizing: content-box;
+}
+
+body {
+    background-color: lightgrey;
+    text-align: center;
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance:textfield;
+}
+
+.sudoku-grid {
+    display: inline-block;
+    margin: 0 auto;
+}
+
+.sudoku-subgrid input {
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    text-align: center;
+    border: 1px solid gray;
+}
+
+.sudoku-subgrid input:focus {
+    outline: none;
+}
+
+.sudoku-subgrid {
+    display: inline-block;
+}

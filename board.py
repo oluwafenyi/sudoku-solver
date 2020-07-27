@@ -20,11 +20,19 @@ class Cell:
         self.isfixed = isfixed
         self.grid_dimension = grid_dimension
 
+    def __key(self) -> tuple:
+        return self.x, self.y
+
     def __repr__(self):
         return "{0.__class__.__name__}({0.x!r}, {0.y!r})".format(self)
 
+    def __hash__(self):
+        return hash(self.__key())
+
     def __eq__(self, other):
-        return (self.x == other.x) and (self.y == other.y)
+        if isinstance(other, self.__class__):
+            return self.__key() == other.__key()
+        raise NotImplementedError
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -104,6 +112,7 @@ class Board:
     def __init__(self, dimension=9):
         self.dimension = dimension
         self.board = []
+        self.init_board()
 
     def __repr__(self):
         return "{0.__class__.__name__}({0.dimension!r})".format(self)
@@ -120,24 +129,28 @@ class Board:
         else:
             raise IndexError("index out of range")
 
-    def input_cells(self, cells: list):
-        """
-        takes in a list of cells and fills the gap with zero-cells
-        """
-        buffer = []
+    def copy(self):
+        copy = Board(dimension=self.dimension)
+        copy.board = [Cell(cell.x, cell.y, cell.value, isfixed=cell.isfixed) for cell in self.board]
+        return copy
+
+    def init_board(self):
         for i in range(self.dimension):
             for j in range(self.dimension):
-                if Cell(i, j) not in cells:
-                    buffer.append(Cell(i, j, 0))
+                self.board.append(Cell(i, j, val=0))
 
-        buffer += cells
-        self.board = sorted(buffer, key=lambda cell: (cell.x, cell.y))
+
+    def input_cell(self, cell: Cell):
+        if cell in self.board:
+            index = self.board.index(cell)
+            self.board[index] = Cell(cell.x, cell.y, val=cell.val)
+        else:
+            raise ValueError
 
     def generate_board(self, difficulty=0):
-        # todo: create function to generate random boards
+        # todo: create function to generate random valid boards
         pass
 
-    @property
     def is_solved(self):
         solved = True
         region = Region(self.board)
@@ -161,7 +174,6 @@ class Board:
 
         return solved
 
-    @property
     def is_valid(self):
         valid = True
         region = Region(self.board)
@@ -181,3 +193,40 @@ class Board:
                     valid = False
                     break
         return valid
+
+    @staticmethod
+    def solve(board):
+        if board.is_solved():
+            return board
+        possible_solutions_set = {}
+        least_possible_solutions = None
+        tracked_cell = None
+        for cell in board:
+            if cell.isfixed:
+                continue
+            if cell.value == 0:
+                taken_x = [c.value for c in board if c.value != 0 and c.x == cell.x]
+                taken_y = [c.value for c in board if c.value != 0 and c.y == cell.y]
+                taken_b = [c.value for c in board if c.value != 0 and c.block == cell.block]
+                taken_set = set(taken_x + taken_y + taken_b)
+                possible_solutions = list({i for i in range(1, board.dimension + 1)} - taken_set)
+                if len(possible_solutions) == 1:
+                    cell.value = possible_solutions[0]
+                else:
+                    possible_solutions_set[cell] = possible_solutions
+
+        if [] in possible_solutions_set.values():
+            return
+        if not possible_solutions_set:
+            return board
+        sorted_set = list(sorted(possible_solutions_set.items(), key=lambda sol: len(sol[1])))
+        for cell, solution_set in sorted_set:
+            for solution in solution_set:
+                board_copy = board.copy()
+                cell_copy = Cell(cell.x, cell.y, solution)
+                board_copy.input_cell(cell_copy)
+                if not board_copy.is_valid():
+                    continue
+                solved = Board.solve(board_copy)
+                if solved is not None:
+                    return solved

@@ -1,2 +1,2 @@
-PyQt5==5.13.0
-PyQt5-sip==4.19.18
+Jinja2==2.11.2
+git+https://github.com/oluwafenyi/Eel.git@start-page-context
