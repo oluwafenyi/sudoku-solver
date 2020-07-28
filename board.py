@@ -143,7 +143,7 @@ class Board:
     def input_cell(self, cell: Cell):
         if cell in self.board:
             index = self.board.index(cell)
-            self.board[index] = Cell(cell.x, cell.y, val=cell.val)
+            self.board[index] = cell
         else:
             raise ValueError
 
@@ -180,16 +180,23 @@ class Board:
         horizontals = region.horizontal_regions()
         verticals = region.vertical_regions()
         blocks = region.block_regions()
-        for cell in self.board:
+        self.errors = {}
+        for cell in self:
             if cell.value:
                 if [c.value for c in horizontals[cell.x]].count(cell.value) > 1:
+                    self.errors.setdefault(cell, [])
+                    self.errors[cell].append('x')
                     valid = False
                     break
                 if [c.value for c in verticals[cell.y]].count(cell.value) > 1:
+                    self.errors.setdefault(cell, [])
+                    self.errors[cell].append('y')
                     valid = False
                     break
 
                 if [c.value for c in self.board if c.block == cell.block].count(cell.value) > 1:
+                    self.errors.setdefault(cell, [])
+                    self.errors[cell].append('b')
                     valid = False
                     break
         return valid

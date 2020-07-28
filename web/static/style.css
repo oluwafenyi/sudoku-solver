@@ -28,10 +28,13 @@ input[type=number] {
     height: 2rem;
     text-align: center;
     border: 1px solid gray;
+    cursor: default;
 }
 
 .sudoku-subgrid input:focus {
     outline: none;
+    background: gray;
+    color: white;
 }
 
 .sudoku-subgrid {

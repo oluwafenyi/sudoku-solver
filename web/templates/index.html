@@ -15,7 +15,7 @@
           <tr class="subgrid">
             {% for x in nums %}
             <td>
-              <input type="number" id={{ 'cell-'~x~'-'~y }} min="1" max="9">
+              <input type="text" id={{ 'cell-'~x~'-'~y }} maxlength="1">
             </td>
             {% endfor %}
           </tr>

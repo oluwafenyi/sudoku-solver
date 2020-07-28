@@ -9,6 +9,7 @@ eel.init('web', allowed_extensions=('.js', '.html'))
 
 @eel.expose
 def clear_board():
+    board.board = []
     board.init_board()
 
 @eel.expose
@@ -17,6 +18,29 @@ def input_cell(x, y, value):
     if value != 0:
         cell.isfixed = True
     board.input_cell(cell)
+
+    if cell.value == 0:
+        eel.setCellColor(cell.x, cell.y, 'unset')
+
+    if not board.is_valid():
+        for cell_, classes in board.errors.items():
+            for c in board:
+                if 'x' in classes:
+                    if c.x == cell_.x and c.value == cell_.value:
+                        eel.setCellColor(c.x, c.y, 'error')
+                if 'y' in classes:
+                    if c.y == cell_.y and c.value == cell_.value:
+                        eel.setCellColor(c.x, c.y, 'error')
+                if 'b' in classes:
+                    if c.block == cell_.block and c.value == cell_.value:
+                        eel.setCellColor(c.x, c.y, 'error')
+
+    else:
+        for c in board:
+            if c.isfixed is True:
+                eel.setCellColor(c.x, c.y, 'fixed')
+            else:
+                eel.setCellColor(c.x, c.y, 'unset')
 
 @eel.expose
 def solve():
@@ -49,5 +73,6 @@ if __name__ == '__main__':
         'templates/index.html',
         jinja_templates='templates',
         size=(500,548),
-        context={'generate_seq': generate_seq, 'enumerate': enumerate, 'get_col_seq': get_col_seq}
+        context={'generate_seq': generate_seq, 'enumerate': enumerate, 'get_col_seq': get_col_seq},
+        app_mode=True
     )
