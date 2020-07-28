@@ -113,6 +113,7 @@ class Board:
         self.dimension = dimension
         self.board = []
         self.init_board()
+        self.errors = {}
 
     def __repr__(self):
         return "{0.__class__.__name__}({0.dimension!r})".format(self)
@@ -180,25 +181,20 @@ class Board:
         horizontals = region.horizontal_regions()
         verticals = region.vertical_regions()
         blocks = region.block_regions()
-        self.errors = {}
         for cell in self:
-            if cell.value:
-                if [c.value for c in horizontals[cell.x]].count(cell.value) > 1:
-                    self.errors.setdefault(cell, [])
-                    self.errors[cell].append('x')
-                    valid = False
-                    break
-                if [c.value for c in verticals[cell.y]].count(cell.value) > 1:
-                    self.errors.setdefault(cell, [])
-                    self.errors[cell].append('y')
-                    valid = False
-                    break
-
-                if [c.value for c in self.board if c.block == cell.block].count(cell.value) > 1:
-                    self.errors.setdefault(cell, [])
-                    self.errors[cell].append('b')
-                    valid = False
-                    break
+            self.errors[cell] = []
+            if cell.value < 1:
+                continue
+            if [c.value for c in horizontals[cell.x]].count(cell.value) > 1:
+                self.errors[cell].append('x')
+                valid = False
+            if [c.value for c in verticals[cell.y]].count(cell.value) > 1:
+                self.errors[cell].append('y')
+                valid = False
+            if [c.value for c in self.board if c.block == cell.block].count(cell.value) > 1:
+                self.errors[cell].append('b')
+                valid = False
+        self.errors = {k:v for k, v in self.errors.items() if v}
         return valid
 
     @staticmethod

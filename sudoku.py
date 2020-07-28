@@ -7,10 +7,12 @@ from board import Cell, Board
 board = Board()
 eel.init('web', allowed_extensions=('.js', '.html'))
 
+
 @eel.expose
 def clear_board():
     board.board = []
     board.init_board()
+
 
 @eel.expose
 def input_cell(x, y, value):
@@ -21,6 +23,12 @@ def input_cell(x, y, value):
 
     if cell.value == 0:
         eel.setCellColor(cell.x, cell.y, 'unset')
+
+    for c in board:
+        if c.isfixed is True:
+            eel.setCellColor(c.x, c.y, 'fixed')
+        else:
+            eel.setCellColor(c.x, c.y, 'unset')
 
     if not board.is_valid():
         for cell_, classes in board.errors.items():
@@ -35,12 +43,6 @@ def input_cell(x, y, value):
                     if c.block == cell_.block and c.value == cell_.value:
                         eel.setCellColor(c.x, c.y, 'error')
 
-    else:
-        for c in board:
-            if c.isfixed is True:
-                eel.setCellColor(c.x, c.y, 'fixed')
-            else:
-                eel.setCellColor(c.x, c.y, 'unset')
 
 @eel.expose
 def solve():
@@ -48,6 +50,7 @@ def solve():
     for cell in solved_board:
         if not cell.isfixed:
             eel.insertCellValue(cell.x, cell.y, cell.value)
+
 
 def generate_seq():
     n = 0
@@ -57,15 +60,16 @@ def generate_seq():
         if n == 9:
             n = 0
 
+
 def get_col_seq(i):
-    seqs = []
     n = 0
     for m in range(9):
         if m % 3 == 0 and m > 0:
             n += 3
         seq = list(range(n, n+3))
-        seqs.append(seq)
-    return seqs[i]
+        if m == i:
+            return seq
+    raise IndexError
 
 
 if __name__ == '__main__':
@@ -74,5 +78,4 @@ if __name__ == '__main__':
         jinja_templates='templates',
         size=(500,548),
         context={'generate_seq': generate_seq, 'enumerate': enumerate, 'get_col_seq': get_col_seq},
-        app_mode=True
     )

@@ -28,6 +28,8 @@ for (let y = 0; y < 9; y++) {
   board.push(row);
 }
 
+const allowedKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+
 board.forEach(row => {
   row.forEach(cell => {
     cell.addEventListener('keydown', (e) => {
@@ -36,12 +38,17 @@ board.forEach(row => {
       const y = Number(coords[2]);
 
       if (e.key == 'Backspace') {
+        e.srcElement.value = '';
         eel.input_cell(x, y, 0);
       }
-      else {
-        const value = Number(e.key);
-        eel.input_cell(x, y, value);
+      else if (allowedKeys.indexOf(e.key) !== -1) {
+        if (e.srcElement.value.length == 0) {
+          e.srcElement.value = e.key;
+          const value = Number(e.key);
+          eel.input_cell(x, y, value);
+        }
       }
+      e.srcElement.blur();
     });
   });
 });
